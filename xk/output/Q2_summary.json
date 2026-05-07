@@ -1,0 +1,41 @@
+{
+  "attachment": "附件2",
+  "feasible_domain": [
+    -629.429,
+    889.721
+  ],
+  "dt_hat_seconds": -364.80940341717553,
+  "dt_sigma_seconds": 0.6448557825730598,
+  "dx_hat_meters": -3.586648779785974,
+  "dy_hat_meters": 1.7964358560001121,
+  "joint_final_cost_m2": 2.0380055217976905,
+  "coarse_dt0": -203.42899999999997,
+  "noise": {
+    "sigma_diff_x_m": 1.0329565591637353,
+    "sigma_diff_y_m": 0.9855257739990083,
+    "sigma_per_path_x_m": 0.7304105876558005,
+    "sigma_per_path_y_m": 0.6968719578288196,
+    "sigma_per_path_m": 0.7138382702572985,
+    "residual_mean_x": -2.027470633692019e-08,
+    "residual_mean_y": -6.472257797440761e-08
+  },
+  "ks_test": {
+    "x_stat": 0.009179276813824078,
+    "x_pvalue": 0.5074115970751276,
+    "y_stat": 0.009338884581570728,
+    "y_pvalue": 0.48504217279898354,
+    "interpretation": "p > 0.05 supports Gaussian H0; low p indicates non-Gaussian residual structure."
+  },
+  "weights": {
+    "w1": 0.5,
+    "w2": 0.5
+  },
+  "n_full_coverage": 10042,
+  "n_strict_intersection": 5349,
+  "n_only_method1": 2148,
+  "n_only_method2": 2545,
+  "t_full_range": [
+    -152.4,
+    851.699999999943
+  ]
+}
