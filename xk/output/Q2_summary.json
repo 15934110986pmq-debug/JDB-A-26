@@ -5,7 +5,7 @@
     889.721
   ],
   "dt_hat_seconds": -364.80940341717553,
-  "dt_sigma_seconds": 0.6448557825730598,
+  "dt_sigma_seconds_CR": 0.6448557825730598,
   "dx_hat_meters": -3.586648779785974,
   "dy_hat_meters": 1.7964358560001121,
   "joint_final_cost_m2": 2.0380055217976905,
@@ -17,21 +17,65 @@
     "sigma_per_path_y_m": 0.6968719578288196,
     "sigma_per_path_m": 0.7138382702572985,
     "residual_mean_x": -2.027470633692019e-08,
-    "residual_mean_y": -6.472257797440761e-08
+    "residual_mean_y": -6.472257797440761e-08,
+    "cross_correlation_rho": -0.036358395360530815,
+    "cross_correlation_pvalue": 0.0011437007433025025
   },
-  "ks_test": {
-    "x_stat": 0.009179276813824078,
-    "x_pvalue": 0.5074115970751276,
-    "y_stat": 0.009338884581570728,
-    "y_pvalue": 0.48504217279898354,
-    "interpretation": "p > 0.05 supports Gaussian H0; low p indicates non-Gaussian residual structure."
+  "gaussian_diagnostics": {
+    "ks_x_pvalue": 0.5074115970751276,
+    "ks_y_pvalue": 0.48504217279898354,
+    "ad_x_stat": 1.154043696797089,
+    "ad_x_critical_5pct": 0.752,
+    "ad_y_stat": 0.9910262709718154,
+    "ad_y_critical_5pct": 0.752,
+    "shapiro_x_pvalue": 0.18620711542107943,
+    "shapiro_y_pvalue": 0.005565658088867419
   },
-  "weights": {
+  "ljung_box": {
+    "x_lag10_pvalue": 0.0,
+    "x_lag20_pvalue": 0.0,
+    "y_lag10_pvalue": 0.0,
+    "y_lag20_pvalue": 0.0,
+    "interpretation": "p > 0.05 supports white-noise H0; low p indicates serial correlation."
+  },
+  "bootstrap": {
+    "n_boot": 80,
+    "dt_std": 0.4014507212913533,
+    "dt_ci95": [
+      -366.0118747322323,
+      -364.5095568432197
+    ],
+    "dx_std": 0.021725924783869897,
+    "dx_ci95": [
+      -3.6272092372830875,
+      -3.548425124307103
+    ],
+    "dy_std": 0.019490277860224597,
+    "dy_ci95": [
+      1.762507564761075,
+      1.836093297040296
+    ]
+  },
+  "kalman": {
+    "sigma_a_process": 0.5,
+    "n_observations": 6948,
+    "n_resampled_10hz": 10042,
+    "t_range": [
+      -152.4,
+      851.699999999943
+    ],
+    "posterior_var_x_mean": 0.025249363645605025,
+    "posterior_var_y_mean": 0.025249363645605025,
+    "nis_mean": 2.696835232060203,
+    "nis_consistency_2dof_target": 2.0,
+    "interpretation": "NIS mean ≈ 2 means filter is consistent. Posterior variance < single-path variance shows fusion gain."
+  },
+  "weights_static": {
     "w1": 0.5,
     "w2": 0.5
   },
-  "n_full_coverage": 10042,
-  "n_strict_intersection": 5349,
+  "n_full_coverage_static": 10042,
+  "n_strict_intersection_static": 5349,
   "n_only_method1": 2148,
   "n_only_method2": 2545,
   "t_full_range": [
