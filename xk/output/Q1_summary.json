@@ -1,0 +1,33 @@
+{
+  "attachment": "附件1",
+  "feasible_domain": [
+    -491.9183,
+    1037.8317
+  ],
+  "dt_hat_seconds": -198.43170069417184,
+  "dt_sigma_seconds": 6.682884753996226e-05,
+  "baseline_final_cost_m2": 1.7376506890670826e-11,
+  "two_path_rmse_m": 5.5844221892787e-06,
+  "coarse_min_dt": -198.9183,
+  "joint_estimate": {
+    "dt_seconds": -198.4317008967145,
+    "dx_meters": 2.2349288996660424e-07,
+    "dy_meters": 8.891830099501678e-09,
+    "final_cost_m2": 1.7326435714672333e-11,
+    "interpretation": "dx, dy expected ~ 0 for attachment-1 (no system bias). Significant deviation would indicate hidden bias."
+  },
+  "n_full_coverage": 8494,
+  "n_strict_intersection": 7004,
+  "n_overlap_only": 7004,
+  "n_only_method1": 494,
+  "n_only_method2": 996,
+  "t_full_range": [
+    221.0,
+    1070.2999999999518
+  ],
+  "t_intersection_range": [
+    270.4,
+    970.7000000001592
+  ],
+  "convention": "Method-1 timestamp = physical time. Method-2 physical time = t2 + dt. Negative dt here means Method-2 was powered on |dt| s earlier."
+}

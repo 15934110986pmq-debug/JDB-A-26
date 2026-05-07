@@ -1,0 +1,38 @@
+# Python venv / build
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/settings.json
+
+# Claude Code local
+.claude/settings.local.json
+
+# Big LO outputs we generate locally
+xk/figures/font_test.png
+
+# Toolchain extras at root we don't want
+everything-claude-code/
+
+# Existing prior solutions kept locally for reference, not in repo
+A/
+B/
+
+# Build artifacts
+*.log
+*.bak
+*~
