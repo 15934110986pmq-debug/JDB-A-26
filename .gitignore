@@ -36,3 +36,6 @@ B/
 *.log
 *.bak
 *~
+
+# Generated HTML previews from markdown (regenerate via render_md.py)
+xk/paper/*.html
