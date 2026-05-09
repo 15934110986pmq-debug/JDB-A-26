@@ -84,11 +84,16 @@ uv pip install --python .venv/bin/python \
 
 ## Q2 关键结果
 
-| 项 | 值 |
+> **2026-05-09 主解切换**：经 5 个独立 AI 红队验证，主解从 $\Delta t = -364.81$ s 切换至 $\Delta t = -50.29$ s（$J^*$ 最小 + 公共重叠最长 + 不出现负时间）。原 $-364.81$ 仍为合法周期 alias 备选，列入附录。详见 `xk/paper/Q2_三审综合.md`。
+
+| 项 | 值（C1 主解） |
 |---|---|
-| 时间偏差 $\hat{\Delta t}$ | $-364.8094 \pm 0.40$ s（Bootstrap 95% CI 主 basin 内） |
-| 系统偏差 $(\hat{\Delta x}, \hat{\Delta y})$ | $(-3.587, +1.796)$ m |
-| 单路噪声 $\hat\sigma$ | $\hat\sigma_x = 0.730$ m，$\hat\sigma_y = 0.697$ m |
-| 静态 BLUE 融合方差 | $\overline P_{xx} \approx 0.25\,\mathrm m^2$ |
-| KF/RTS 融合方差 | $\overline P_{xx} \approx 0.025\,\mathrm m^2$（降噪 68%） |
-| 一致性 $\overline{\mathrm{NIS}}$ | $2.70$（期望 2，越界已诚实记录） |
+| 时间偏差 $\hat{\Delta t}$ | $-50.2949 \pm 0.29$ s（Bootstrap 95% CI $[-51.10, -49.92]$，主 basin 内） |
+| 系统偏差 $(\hat{\Delta x}, \hat{\Delta y})$ | $(-3.474, +1.831)$ m |
+| 单路噪声 $\hat\sigma$ | $\hat\sigma_x = 0.662$ m，$\hat\sigma_y = 0.690$ m |
+| 联合代价 $J^*$ | $1.827\,\mathrm m^2$（$2(\hat\sigma_x^2+\hat\sigma_y^2) = 1.828$，吻合 99.95%） |
+| 静态 BLUE 融合方差 | $\overline P_{xx} \approx 0.23\,\mathrm m^2$ |
+| KF/RTS 融合方差 | $\overline P_{xx} \approx 0.019\,\mathrm m^2$（降噪 **71%**） |
+| 一致性 $\overline{\mathrm{NIS}}$ | $2.89$（期望 2，越界已诚实记录） |
+| 物理时间范围 | $[102.0, 951.4]$ s（**全为正**） |
+| Alternative basin (附录) | $\Delta t = -364.81$ s（与 C1 同物理偏差错 1 个周期 314 s 的 alias） |

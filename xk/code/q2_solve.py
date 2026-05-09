@@ -193,17 +193,28 @@ def solve_q2(path: Path, name: str = "Attachment 2"):
     for i in top_local:
         print(f"    dt={grid[i]:.2f}, J={costs[i]:.4f}")
 
-    # For each candidate, run joint Nelder-Mead, compare final J
+    # For each candidate, run TWO-STAGE Nelder-Mead, compare final J.
+    # 单阶段 NM 在某些盆地里会卡在浅鞍点 (e.g. 原 C4 卡在 J=3.14, 真值 1.83);
+    # 两阶段 NM (粗 + 细 + 加密积分网格) 大幅降低早停风险.
     best = None
     candidates = []
     for i in top_local:
         x0 = np.array([float(grid[i]), 0.0, 0.0])
-        res_i = minimize(
+        # Stage 1: rough convergence
+        res1 = minimize(
             alignment_cost_joint,
             x0=x0,
+            args=(s1, s2, fx2, fy2, 4000),
+            method="Nelder-Mead",
+            options={"xatol": 1e-7, "fatol": 1e-7, "maxiter": 5000},
+        )
+        # Stage 2: tight refinement on a denser grid, init = stage-1 solution
+        res_i = minimize(
+            alignment_cost_joint,
+            x0=res1.x,
             args=(s1, s2, fx2, fy2, 8000),
             method="Nelder-Mead",
-            options={"xatol": 1e-7, "fatol": 1e-12, "maxiter": 20000},
+            options={"xatol": 1e-10, "fatol": 1e-12, "maxiter": 20000},
         )
         candidates.append((float(res_i.fun), tuple(map(float, res_i.x))))
         if best is None or res_i.fun < best[0]:
@@ -262,6 +273,13 @@ def solve_q2(path: Path, name: str = "Attachment 2"):
           f"(CR-LB σ_Δt = {sigma_dt:.4f} s)")
     print(f"  bootstrap σ_Δx = {boot['dx_std']:.4f} m, σ_Δy = {boot['dy_std']:.4f} m")
 
+    # Persist sorted candidate list for论文 §4.6 多盆地表
+    candidates_sorted = sorted(candidates, key=lambda x: x[0])
+    candidate_list = [
+        {"rank": k + 1, "J_star": J, "dt": dtv, "dx": dxv, "dy": dyv}
+        for k, (J, (dtv, dxv, dyv)) in enumerate(candidates_sorted)
+    ]
+
     summary = dict(
         attachment=name,
         feasible_domain=[dt_lo, dt_hi],
@@ -271,6 +289,7 @@ def solve_q2(path: Path, name: str = "Attachment 2"):
         dy_hat_meters=dy_hat,
         joint_final_cost_m2=final_cost,
         coarse_dt0=dt0,
+        candidates=candidate_list,
         noise=dict(
             sigma_diff_x_m=noise["sigma_diff_x"],
             sigma_diff_y_m=noise["sigma_diff_y"],
