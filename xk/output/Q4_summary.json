@@ -1,0 +1,260 @@
+{
+  "constraints": {
+    "shoot": {
+      "d_min": 5.0,
+      "d_max": 30.0,
+      "v_max": 2.0,
+      "a_max": 1.5,
+      "T_aim": 1.5,
+      "hit_rate": 0.85
+    },
+    "photo": {
+      "d_min": 10.0,
+      "d_max": 40.0,
+      "v_max": 1.5,
+      "a_max": 1.5,
+      "T_focus": 0.5,
+      "angle_diff_deg": 60.0
+    }
+  },
+  "n_targets": {
+    "shoot": 18,
+    "photo": 18
+  },
+  "n_candidates": {
+    "shoot": 33,
+    "photo": 26
+  },
+  "n_unique_targets_with_candidates": {
+    "shoot": 16,
+    "photo": 18
+  },
+  "n_selected": {
+    "total": 20,
+    "shoot": 8,
+    "photo": 12
+  },
+  "expected_shoot_hits": 6.8,
+  "selected": [
+    {
+      "rank": 1,
+      "target": "P18",
+      "type": "拍照",
+      "t_prep": 445.0,
+      "t_exec": 445.5,
+      "distance_m": 31.239,
+      "speed_mps": 0.214,
+      "accel_mps2": 0.082,
+      "view_angle_deg": 170.0
+    },
+    {
+      "rank": 2,
+      "target": "P09",
+      "type": "拍照",
+      "t_prep": 449.9,
+      "t_exec": 450.4,
+      "distance_m": 23.252,
+      "speed_mps": 0.147,
+      "accel_mps2": 0.143,
+      "view_angle_deg": -149.3
+    },
+    {
+      "rank": 3,
+      "target": "P08",
+      "type": "拍照",
+      "t_prep": 450.7,
+      "t_exec": 451.2,
+      "distance_m": 32.195,
+      "speed_mps": 0.216,
+      "accel_mps2": 0.213,
+      "view_angle_deg": -110.4
+    },
+    {
+      "rank": 4,
+      "target": "P05",
+      "type": "拍照",
+      "t_prep": 452.1,
+      "t_exec": 452.6,
+      "distance_m": 30.308,
+      "speed_mps": 0.483,
+      "accel_mps2": 0.129,
+      "view_angle_deg": -63.7
+    },
+    {
+      "rank": 5,
+      "target": "P04",
+      "type": "拍照",
+      "t_prep": 453.9,
+      "t_exec": 454.4,
+      "distance_m": 27.169,
+      "speed_mps": 0.049,
+      "accel_mps2": 0.441,
+      "view_angle_deg": -42.2
+    },
+    {
+      "rank": 6,
+      "target": "S06",
+      "type": "射击",
+      "t_prep": 460.7,
+      "t_exec": 462.2,
+      "distance_m": 5.023,
+      "speed_mps": 0.592,
+      "accel_mps2": 0.299,
+      "view_angle_deg": null
+    },
+    {
+      "rank": 7,
+      "target": "P11",
+      "type": "拍照",
+      "t_prep": 463.2,
+      "t_exec": 463.7,
+      "distance_m": 30.394,
+      "speed_mps": 0.054,
+      "accel_mps2": 0.492,
+      "view_angle_deg": 8.2
+    },
+    {
+      "rank": 8,
+      "target": "P17",
+      "type": "拍照",
+      "t_prep": 466.8,
+      "t_exec": 467.3,
+      "distance_m": 28.037,
+      "speed_mps": 0.051,
+      "accel_mps2": 0.706,
+      "view_angle_deg": 152.0
+    },
+    {
+      "rank": 9,
+      "target": "S03",
+      "type": "射击",
+      "t_prep": 468.1,
+      "t_exec": 469.6,
+      "distance_m": 27.972,
+      "speed_mps": 1.976,
+      "accel_mps2": 0.54,
+      "view_angle_deg": null
+    },
+    {
+      "rank": 10,
+      "target": "S04",
+      "type": "射击",
+      "t_prep": 477.0,
+      "t_exec": 478.5,
+      "distance_m": 8.241,
+      "speed_mps": 1.63,
+      "accel_mps2": 0.077,
+      "view_angle_deg": null
+    },
+    {
+      "rank": 11,
+      "target": "P13",
+      "type": "拍照",
+      "t_prep": 479.4,
+      "t_exec": 479.9,
+      "distance_m": 20.719,
+      "speed_mps": 1.476,
+      "accel_mps2": 0.146,
+      "view_angle_deg": 158.0
+    },
+    {
+      "rank": 12,
+      "target": "P10",
+      "type": "拍照",
+      "t_prep": 480.6,
+      "t_exec": 481.1,
+      "distance_m": 19.921,
+      "speed_mps": 1.5,
+      "accel_mps2": 0.224,
+      "view_angle_deg": 54.6
+    },
+    {
+      "rank": 13,
+      "target": "P03",
+      "type": "拍照",
+      "t_prep": 492.9,
+      "t_exec": 493.4,
+      "distance_m": 23.167,
+      "speed_mps": 1.342,
+      "accel_mps2": 0.236,
+      "view_angle_deg": 174.1
+    },
+    {
+      "rank": 14,
+      "target": "P02",
+      "type": "拍照",
+      "t_prep": 494.3,
+      "t_exec": 494.8,
+      "distance_m": 17.666,
+      "speed_mps": 1.491,
+      "accel_mps2": 0.315,
+      "view_angle_deg": -145.5
+    },
+    {
+      "rank": 15,
+      "target": "P01",
+      "type": "拍照",
+      "t_prep": 507.8,
+      "t_exec": 508.3,
+      "distance_m": 32.378,
+      "speed_mps": 1.343,
+      "accel_mps2": 0.342,
+      "view_angle_deg": 99.6
+    },
+    {
+      "rank": 16,
+      "target": "S10",
+      "type": "射击",
+      "t_prep": 511.2,
+      "t_exec": 512.7,
+      "distance_m": 9.376,
+      "speed_mps": 1.312,
+      "accel_mps2": 0.13,
+      "view_angle_deg": null
+    },
+    {
+      "rank": 17,
+      "target": "S12",
+      "type": "射击",
+      "t_prep": 516.7,
+      "t_exec": 518.2,
+      "distance_m": 23.977,
+      "speed_mps": 1.154,
+      "accel_mps2": 0.344,
+      "view_angle_deg": null
+    },
+    {
+      "rank": 18,
+      "target": "S11",
+      "type": "射击",
+      "t_prep": 650.3,
+      "t_exec": 651.8,
+      "distance_m": 20.912,
+      "speed_mps": 1.187,
+      "accel_mps2": 0.27,
+      "view_angle_deg": null
+    },
+    {
+      "rank": 19,
+      "target": "S14",
+      "type": "射击",
+      "t_prep": 750.1,
+      "t_exec": 751.6,
+      "distance_m": 10.53,
+      "speed_mps": 1.594,
+      "accel_mps2": 0.137,
+      "view_angle_deg": null
+    },
+    {
+      "rank": 20,
+      "target": "S13",
+      "type": "射击",
+      "t_prep": 762.3,
+      "t_exec": 763.8,
+      "distance_m": 29.836,
+      "speed_mps": 1.662,
+      "accel_mps2": 0.152,
+      "view_angle_deg": null
+    }
+  ]
+}
