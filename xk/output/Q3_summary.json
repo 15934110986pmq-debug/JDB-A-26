@@ -1,0 +1,198 @@
+{
+  "attachment": "附件3",
+  "feasible_domain": [
+    77.92000000000002,
+    726.92
+  ],
+  "dt_hat_seconds": 367.9273542711156,
+  "dt_sigma_seconds_CR": 0.709264065686559,
+  "dx_hat_meters": 0.13885084770587647,
+  "dy_hat_meters": 0.1787872375758721,
+  "joint_final_cost_m2": 34.86382384645351,
+  "coarse_dt0": 367.92,
+  "candidates": [
+    {
+      "rank": 1,
+      "J_star": 16.646948979193105,
+      "dt": 733.5896307858753,
+      "dx": -53.353690894619064,
+      "dy": 62.922238732588596,
+      "overlap_s": 3.33036921412463,
+      "rejected_short_overlap": true
+    },
+    {
+      "rank": 2,
+      "J_star": 21.36796758121455,
+      "dt": 728.5631378000936,
+      "dx": -52.335412896465314,
+      "dy": 62.248630992207666,
+      "overlap_s": 8.356862199906345,
+      "rejected_short_overlap": true
+    },
+    {
+      "rank": 3,
+      "J_star": 32.85332547355817,
+      "dt": 711.7356052642726,
+      "dx": -52.60088971763709,
+      "dy": 63.96742885232616,
+      "overlap_s": 25.184394735727324,
+      "rejected_short_overlap": true
+    },
+    {
+      "rank": 4,
+      "J_star": 34.86382384645351,
+      "dt": 367.9273542711156,
+      "dx": 0.13885084770587647,
+      "dy": 0.1787872375758721,
+      "overlap_s": 300.0073542711156,
+      "rejected_short_overlap": false
+    },
+    {
+      "rank": 5,
+      "J_star": 76.05931879614342,
+      "dt": 92.09516208415411,
+      "dx": -4.931405487344575,
+      "dy": -54.247488674918955,
+      "overlap_s": 24.175162084154124,
+      "rejected_short_overlap": true
+    },
+    {
+      "rank": 6,
+      "J_star": 613.9150521733438,
+      "dt": 662.773527980987,
+      "dx": -12.052430927818044,
+      "dy": 45.154199930692045,
+      "overlap_s": 74.146472019013,
+      "rejected_short_overlap": false
+    },
+    {
+      "rank": 7,
+      "J_star": 2872.4092664782743,
+      "dt": 254.4728621534236,
+      "dx": -3.848004969671352,
+      "dy": 10.689827863750756,
+      "overlap_s": 186.55286215342352,
+      "rejected_short_overlap": false
+    },
+    {
+      "rank": 8,
+      "J_star": 4043.4628890765844,
+      "dt": 484.59268685730484,
+      "dx": 0.13258700311669064,
+      "dy": -1.7197261118931113,
+      "overlap_s": 252.32731314269517,
+      "rejected_short_overlap": false
+    },
+    {
+      "rank": 9,
+      "J_star": 4043.485160120019,
+      "dt": 484.5944273476618,
+      "dx": 0.5218433394229363,
+      "dy": -1.6780913669023731,
+      "overlap_s": 252.32557265233822,
+      "rejected_short_overlap": false
+    }
+  ],
+  "min_overlap_threshold_s": 60.0,
+  "noise": {
+    "sigma_1": 4.032173392465609,
+    "sigma_1_x": 4.049779267263569,
+    "sigma_1_y": 4.014490306409692,
+    "sigma_2": 2.778744092361003,
+    "sigma_2_x": 2.8160601312020774,
+    "sigma_2_y": 2.7409200643427174,
+    "sigma_diff_x": 4.248000260516019,
+    "sigma_diff_y": 4.101497713888031,
+    "sigma_sum_check_self": 4.8969215837849385,
+    "sigma_diff_observed": 4.1753915810599675,
+    "cross_correlation_rho": 0.031793625698811195,
+    "cross_correlation_pvalue": 0.004457830990611529,
+    "residual_mean_x": -0.015836347248225188,
+    "residual_mean_y": -0.011931671197380965
+  },
+  "gaussian_diagnostics": {
+    "ks_x_pvalue": 0.2611141125271955,
+    "ks_y_pvalue": 0.04640034207307797,
+    "ad_x_stat": 1.1452240395037734,
+    "ad_x_critical_5pct": 0.752,
+    "ad_y_stat": 1.936465326756661,
+    "ad_y_critical_5pct": 0.752,
+    "sw_x_pvalue": 0.0739409718117701,
+    "sw_y_pvalue": 0.0005907312246044141
+  },
+  "ljung_box": {
+    "x_lag10_pvalue": 0.0,
+    "x_lag20_pvalue": 0.0,
+    "y_lag10_pvalue": 0.0,
+    "y_lag20_pvalue": 0.0
+  },
+  "system_bias_test": {
+    "H0_model": "Δt-only (Δx=Δy=0)",
+    "H1_model": "full 3-param",
+    "dt_under_H0": 367.91412182504706,
+    "J_star_H0": 34.91082605491477,
+    "dt_under_H1": 367.9273542711156,
+    "dx_under_H1": 0.13885084770587647,
+    "dy_under_H1": 0.1787872375758721,
+    "J_star_H1": 34.86382384645351,
+    "delta_J_star": 0.04700220846125802,
+    "relative_improvement_pct": 0.1346350509934182,
+    "F_statistic": 2.0202261716727583,
+    "df_numerator": 2,
+    "df_denominator": 2997,
+    "F_critical_5pct": 2.9987287351006735,
+    "p_value": 0.13280603553551662,
+    "N_effective_samples": 3000,
+    "reject_H0_at_5pct": false,
+    "conclusion": "无系统偏差或不显著: F 检验未拒绝 H0"
+  },
+  "bootstrap": {
+    "n_boot": 80,
+    "dt_mean": 367.9172459646567,
+    "dt_std": 0.1003138299891578,
+    "dt_ci95": [
+      367.74800287402286,
+      368.1557908725063
+    ],
+    "dx_mean": 0.1397200991482379,
+    "dx_std": 0.11845451486634948,
+    "dx_ci95": [
+      -0.13815538065936503,
+      0.3648381628957288
+    ],
+    "dy_mean": 0.18113826001458955,
+    "dy_std": 0.10230816631118518,
+    "dy_ci95": [
+      -0.020443063838930374,
+      0.43850835465863114
+    ],
+    "dx_ci95_contains_zero": true,
+    "dy_ci95_contains_zero": true
+  },
+  "kalman": {
+    "sigma_a_process": 1.5,
+    "n_observations": 3002,
+    "n_resampled_10hz": 3690,
+    "t_range": [
+      445.1,
+      814.0000000000839
+    ],
+    "posterior_var_x_mean": 0.37464343430530256,
+    "posterior_var_y_mean": 0.37464343430530256,
+    "nis_mean": 2.1983124634738056,
+    "nis_consistency_2dof_target": 2.0
+  },
+  "weights_static": {
+    "w1": 0.3219962439100107,
+    "w2": 0.6780037560899892,
+    "sigma_fused_blue": 2.2880452141177487
+  },
+  "n_full_coverage_static": 3690,
+  "n_strict_intersection_static": 3000,
+  "n_only_method1": 450,
+  "n_only_method2": 240,
+  "t_full_range": [
+    445.1,
+    814.0000000000839
+  ]
+}
