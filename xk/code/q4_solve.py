@@ -71,12 +71,22 @@ A_PHOTO_MAX = 1.5                       # m/s²
 T_FOCUS = 0.5                           # s 对准
 ANG_DIFF_DEG = 60.0                     # ° 同目标多角度差
 
+# =====================================================================
+# 三审 P0 修正: 鲁棒约束 (chance constraint) + 过渡时间
+# =====================================================================
+# 鲁棒约束 z 值: 1.645 = 90% 单侧, 1.96 = 95%; 三方建议 1.645 (实务推荐)
+ROBUST_Z = 1.645
+# 速度估计相对不确定度 (Claude 估计 5%)
+SIGMA_V_REL = 0.05
+# 任务间过渡时间 (武器/相机切换), 三方一致建议 0.1 s
+EPSILON_TRANSITION = 0.1
+
 
 # =====================================================================
 # 1. 加载 Q3 KF/RTS 轨迹 + 附件4 目标
 # =====================================================================
 def load_kinematic():
-    """加载 Q3 平滑轨迹 + 求加速度."""
+    """加载 Q3 平滑轨迹 + 求加速度 + KF 后验 σ."""
     df = pd.read_excel(OUT / "Q3_trajectory_10Hz_kalman.xlsx")
     t = df["time_s"].values
     x = df["X_m"].values
@@ -85,6 +95,8 @@ def load_kinematic():
     vy = df["Vy_m_s"].values
     var_x = df["var_X"].values
     var_y = df["var_Y"].values
+    sigma_x = np.sqrt(var_x)
+    sigma_y = np.sqrt(var_y)
 
     dt = float(np.median(np.diff(t)))
 
@@ -97,9 +109,13 @@ def load_kinematic():
 
     speed = np.hypot(vx, vy)
     accel = np.hypot(ax, ay)
+    # 速度不确定度: σ_v ≈ 5% × |v| (Claude 估计) + KF 速度方差应附加, 此处保守用比例
+    sigma_v = SIGMA_V_REL * np.maximum(speed, 0.1)  # 下限 0.1 m/s 避免 σ_v→0
 
     return dict(t=t, x=x, y=y, vx=vx, vy=vy, ax=ax, ay=ay,
-                speed=speed, accel=accel, var_x=var_x, var_y=var_y, dt=dt)
+                speed=speed, accel=accel,
+                sigma_x=sigma_x, sigma_y=sigma_y, sigma_v=sigma_v,
+                dt=dt)
 
 
 def load_targets():
@@ -134,14 +150,40 @@ def find_segments(ok_w):
     return segs
 
 
-def shoot_candidates(S, S_id, kin, W_aim):
-    """对每个射击目标找候选执行时刻段, 取段内距离最小点为执行时刻."""
+def _sigma_d(kin, target):
+    """距离不确定度的传播: σ_d² = (∂d/∂x)² σ_x² + (∂d/∂y)² σ_y².
+    线性化: ∂d/∂x = (x - x_g)/d, 同理 ∂d/∂y = (y - y_g)/d.
+    """
+    dx = kin["x"] - target[0]
+    dy = kin["y"] - target[1]
+    d = np.hypot(dx, dy)
+    d_safe = np.maximum(d, 1e-6)
+    sigma_d_sq = (dx / d_safe) ** 2 * kin["sigma_x"] ** 2 \
+               + (dy / d_safe) ** 2 * kin["sigma_y"] ** 2
+    return np.sqrt(sigma_d_sq)
+
+
+def shoot_candidates(S, S_id, kin, W_aim, robust: bool = False):
+    """对每个射击目标找候选执行时刻段, 取段内距离最小点为执行时刻.
+
+    robust=True 时启用 chance constraint:
+        d - z·σ_d ≥ d_min (左下界)
+        d + z·σ_d ≤ d_max (右上界)
+        v + z·σ_v ≤ v_max
+    其中 z = ROBUST_Z (1.645, 90% 单侧).
+    """
     cands = []
+    z = ROBUST_Z if robust else 0.0
     for i, s in enumerate(S):
         d = np.hypot(kin["x"] - s[0], kin["y"] - s[1])
-        ok_pt = (d >= D_SHOOT_MIN) & (d <= D_SHOOT_MAX) \
-                & (kin["speed"] <= V_SHOOT_MAX) \
-                & (kin["accel"] <= A_SHOOT_MAX)
+        sigma_d = _sigma_d(kin, s) if robust else np.zeros_like(d)
+        d_lo = d - z * sigma_d  # 用于 d ≥ d_min 检查的保守下界
+        d_hi = d + z * sigma_d  # 用于 d ≤ d_max 检查的保守上界
+        v_hi = kin["speed"] + z * kin["sigma_v"]
+        a_hi = kin["accel"]    # σ_a 估计噪声大, 不参与鲁棒
+        ok_pt = (d_lo >= D_SHOOT_MIN) & (d_hi <= D_SHOOT_MAX) \
+                & (v_hi <= V_SHOOT_MAX) \
+                & (a_hi <= A_SHOOT_MAX)
         # 滑窗: j 起 [j, j+W_aim) 全满足
         N = len(d)
         ok_w = np.zeros(N, dtype=bool)
@@ -169,14 +211,23 @@ def shoot_candidates(S, S_id, kin, W_aim):
     return cands
 
 
-def photo_candidates(P, P_id, kin, W_aim, ang_diff_rad):
-    """对每个拍照目标找多个候选 (≥60° 视角差)."""
+def photo_candidates(P, P_id, kin, W_aim, ang_diff_rad, robust: bool = False):
+    """对每个拍照目标找多个候选 (≥60° 视角差).
+
+    robust=True 同 shoot_candidates 启用 chance constraint.
+    """
     cands = []
+    z = ROBUST_Z if robust else 0.0
     for i, p in enumerate(P):
         d = np.hypot(kin["x"] - p[0], kin["y"] - p[1])
-        ok_pt = (d >= D_PHOTO_MIN) & (d <= D_PHOTO_MAX) \
-                & (kin["speed"] <= V_PHOTO_MAX) \
-                & (kin["accel"] <= A_PHOTO_MAX)
+        sigma_d = _sigma_d(kin, p) if robust else np.zeros_like(d)
+        d_lo = d - z * sigma_d
+        d_hi = d + z * sigma_d
+        v_hi = kin["speed"] + z * kin["sigma_v"]
+        a_hi = kin["accel"]
+        ok_pt = (d_lo >= D_PHOTO_MIN) & (d_hi <= D_PHOTO_MAX) \
+                & (v_hi <= V_PHOTO_MAX) \
+                & (a_hi <= A_PHOTO_MAX)
         N = len(d)
         ok_w = np.zeros(N, dtype=bool)
         for j in range(N - W_aim + 1):
@@ -221,11 +272,12 @@ def photo_candidates(P, P_id, kin, W_aim, ang_diff_rad):
 # =====================================================================
 # 3. 加权区间调度 DP (最大化任务数)
 # =====================================================================
-def weighted_interval_scheduling_with_uniqueness(all_cand):
+def weighted_interval_scheduling_with_uniqueness(all_cand, epsilon: float = 0.0):
     """加权区间调度 + 唯一性约束:
-       - 射击: 每个目标至多入选 1 次 (1 个目标只需打中 1 次, 即使 85% 命中率)
+       - 射击: 每个目标至多入选 1 次 (完成数 = 不同目标数, 而非射击次数)
        - 拍照: 同目标允许多次 (前提是视角差 ≥ 60°, 已在候选生成阶段去重过)
-    使用 ILP (PuLP) 求最优; 退化时用贪心.
+       - epsilon: 任务间过渡时间 (s), 即 t_exec_i + ε ≤ t_prep_j
+    使用 ILP (scipy.milp) 求最优; 退化时用贪心.
     """
     if not all_cand:
         return []
@@ -243,10 +295,10 @@ def weighted_interval_scheduling_with_uniqueness(all_cand):
         c_obj = -np.ones(n)
         # 约束矩阵: 收集所有 ≤ 1 的不等式行
         rows = []
-        # 时段冲突: 排序后只需检查相邻对扩展, 但保险起见全比较 O(n²)
+        # 时段冲突: t_exec_i + ε > t_prep_j 时互斥 (考虑过渡时间)
         for i in range(n):
             for j in range(i + 1, n):
-                if cand[i]["t_exec"] > cand[j]["t_prep"]:
+                if cand[i]["t_exec"] + epsilon > cand[j]["t_prep"]:
                     row = np.zeros(n)
                     row[i] = 1; row[j] = 1
                     rows.append(row)
@@ -280,6 +332,7 @@ def weighted_interval_scheduling_with_uniqueness(all_cand):
             print(f"  [警告] ILP 求解失败 ({result.message}), 回退到贪心")
     except (ImportError, AttributeError) as e:
         print(f"  [警告] scipy.milp 不可用: {e}, 回退到贪心")
+    # 退化贪心 (理论不会执行, ILP 必走) — 仅作防御
     if False:
         # 退化: 贪心 — 先按射击目标去重 (留最佳: d 最小), 再做 DP
         shoot_best = {}
@@ -475,31 +528,63 @@ def main():
     print(f"  拍照: d ∈ [{D_PHOTO_MIN}, {D_PHOTO_MAX}] m, v ≤ {V_PHOTO_MAX}, "
           f"|a| ≤ {A_PHOTO_MAX}, T_focus={T_FOCUS}s ({W_aim_p} 点), 角度 ≥ {ANG_DIFF_DEG}°")
 
-    # 候选生成
-    print(f"\n[候选生成]")
-    shoot_cand = shoot_candidates(S, S_id, kin, W_aim_s)
-    photo_cand = photo_candidates(P, P_id, kin, W_aim_p, np.deg2rad(ANG_DIFF_DEG))
-    print(f"  射击候选: {len(shoot_cand)}")
-    print(f"  拍照候选: {len(photo_cand)} (含同目标多角度)")
-    n_unique_shoot = len({c["target"] for c in shoot_cand})
-    n_unique_photo = len({c["target"] for c in photo_cand})
-    print(f"  覆盖: 射击 {n_unique_shoot}/{len(S)} 目标, 拍照 {n_unique_photo}/{len(P)} 目标")
+    # ===== 标称解 (P0 修正前的基线) =====
+    print(f"\n========== 标称解 (无鲁棒约束, 无过渡时间 ε=0) ==========")
+    shoot_cand_nom = shoot_candidates(S, S_id, kin, W_aim_s, robust=False)
+    photo_cand_nom = photo_candidates(P, P_id, kin, W_aim_p,
+                                      np.deg2rad(ANG_DIFF_DEG), robust=False)
+    all_cand_nom = shoot_cand_nom + photo_cand_nom
+    selected_nom = weighted_interval_scheduling_with_uniqueness(
+        all_cand_nom, epsilon=0.0)
+    selected_nom.sort(key=lambda c: c["t_prep"])
+    n_shoot_nom = sum(1 for c in selected_nom if c["type"] == '射击')
+    n_photo_nom = sum(1 for c in selected_nom if c["type"] == '拍照')
+    print(f"  候选 {len(all_cand_nom)} → 入选 {len(selected_nom)} "
+          f"({n_shoot_nom} 射击 + {n_photo_nom} 拍照)")
 
-    if shoot_cand:
-        print(f"\n  射击候选详情:")
-        for c in shoot_cand:
-            print(f"    {c['target']}: t_exec={c['t_exec']:7.2f}, d={c['d']:5.2f}m, "
-                  f"v={c['v']:.3f}, |a|={c['a']:.3f}")
-    if photo_cand:
-        print(f"\n  拍照候选详情 (前 20):")
-        for c in photo_cand[:20]:
-            print(f"    {c['target']}: t_exec={c['t_exec']:7.2f}, d={c['d']:5.2f}m, "
-                  f"v={c['v']:.3f}, |a|={c['a']:.3f}, 视角={np.rad2deg(c['view_angle']):+6.1f}°")
+    # ===== 鲁棒解 (chance constraint + ε = 0.1s) =====
+    print(f"\n========== 鲁棒解 (chance constraint z={ROBUST_Z}, ε={EPSILON_TRANSITION}s) ==========")
+    print(f"  σ_x ≈ σ_y mean = {kin['sigma_x'].mean():.3f} m (KF 后验)")
+    print(f"  σ_v = {SIGMA_V_REL*100:.0f}% × |v|")
+    shoot_cand_rob = shoot_candidates(S, S_id, kin, W_aim_s, robust=True)
+    photo_cand_rob = photo_candidates(P, P_id, kin, W_aim_p,
+                                      np.deg2rad(ANG_DIFF_DEG), robust=True)
+    all_cand_rob = shoot_cand_rob + photo_cand_rob
+    selected_rob = weighted_interval_scheduling_with_uniqueness(
+        all_cand_rob, epsilon=EPSILON_TRANSITION)
+    selected_rob.sort(key=lambda c: c["t_prep"])
+    n_shoot_rob = sum(1 for c in selected_rob if c["type"] == '射击')
+    n_photo_rob = sum(1 for c in selected_rob if c["type"] == '拍照')
+    print(f"  鲁棒候选 {len(all_cand_rob)} → 入选 {len(selected_rob)} "
+          f"({n_shoot_rob} 射击 + {n_photo_rob} 拍照)")
+    n_unique_shoot_rob = len({c["target"] for c in shoot_cand_rob})
+    n_unique_photo_rob = len({c["target"] for c in photo_cand_rob})
+    print(f"  鲁棒候选覆盖: 射击 {n_unique_shoot_rob}/{len(S)} 目标, "
+          f"拍照 {n_unique_photo_rob}/{len(P)} 目标")
 
-    # 调度
-    all_cand = shoot_cand + photo_cand
-    selected = weighted_interval_scheduling_with_uniqueness(all_cand)
-    selected.sort(key=lambda c: c["t_prep"])
+    # ===== 标称 vs 鲁棒 对照 =====
+    print(f"\n========== 标称 vs 鲁棒 对照 ==========")
+    nom_targets = {(c["target"], c["type"], round(c["t_exec"], 2)) for c in selected_nom}
+    rob_targets = {(c["target"], c["type"], round(c["t_exec"], 2)) for c in selected_rob}
+    only_nom = nom_targets - rob_targets
+    only_rob = rob_targets - nom_targets
+    common = nom_targets & rob_targets
+    print(f"  公共: {len(common)} 任务")
+    print(f"  仅标称 (鲁棒模式被剔除): {len(only_nom)}")
+    for t in sorted(only_nom, key=lambda x: x[2]):
+        print(f"    {t[0]} {t[1]} @ t={t[2]}")
+    print(f"  仅鲁棒 (标称中不存在): {len(only_rob)}")
+    for t in sorted(only_rob, key=lambda x: x[2]):
+        print(f"    {t[0]} {t[1]} @ t={t[2]}")
+
+    # 主交付: 鲁棒解 (P0 修正)
+    print(f"\n========== 主交付: 鲁棒解 ==========")
+    selected = selected_rob
+    all_cand = all_cand_rob
+    shoot_cand = shoot_cand_rob
+    photo_cand = photo_cand_rob
+    n_unique_shoot = n_unique_shoot_rob
+    n_unique_photo = n_unique_photo_rob
 
     n_shoot_sel = sum(1 for c in selected if c["type"] == '射击')
     n_photo_sel = sum(1 for c in selected if c["type"] == '拍照')
@@ -547,7 +632,7 @@ def main():
     df_sel.to_excel(OUT / "Q4_最终方案.xlsx", index=False)
     print(f"[输出] {OUT / 'Q4_最终方案.xlsx'}")
 
-    # JSON 汇总
+    # JSON 汇总: 标称 + 鲁棒 双解
     summary = dict(
         constraints=dict(
             shoot=dict(d_min=D_SHOOT_MIN, d_max=D_SHOOT_MAX,
@@ -556,13 +641,47 @@ def main():
             photo=dict(d_min=D_PHOTO_MIN, d_max=D_PHOTO_MAX,
                        v_max=V_PHOTO_MAX, a_max=A_PHOTO_MAX,
                        T_focus=T_FOCUS, angle_diff_deg=ANG_DIFF_DEG),
+            robustness=dict(
+                z_value=ROBUST_Z,
+                z_meaning="90% one-sided (chance constraint)",
+                sigma_v_relative=SIGMA_V_REL,
+                sigma_x_kf_mean=float(kin["sigma_x"].mean()),
+                epsilon_transition_s=EPSILON_TRANSITION,
+            ),
         ),
         n_targets=dict(shoot=len(S), photo=len(P)),
+        nominal_solution=dict(
+            n_candidates=len(all_cand_nom),
+            n_selected=len(selected_nom),
+            n_shoot=n_shoot_nom, n_photo=n_photo_nom,
+            expected_hits=n_shoot_nom * HIT_RATE,
+            note="标称解, 无鲁棒约束, 无过渡时间. 含边界值候选 (S06 d=5.02, P10 v=1.500).",
+        ),
+        robust_solution=dict(
+            n_candidates=len(all_cand_rob),
+            n_selected=len(selected_rob),
+            n_shoot=n_shoot_rob, n_photo=n_photo_rob,
+            expected_hits=n_shoot_rob * HIT_RATE,
+            note=f"主交付. chance constraint z={ROBUST_Z} + ε={EPSILON_TRANSITION}s 过渡时间.",
+        ),
+        comparison=dict(
+            common=len(common),
+            only_nominal=len(only_nom),
+            only_robust=len(only_rob),
+            removed_by_robust=[{"target": t[0], "type": t[1], "t_exec": t[2]}
+                               for t in sorted(only_nom, key=lambda x: x[2])],
+            new_in_robust=[{"target": t[0], "type": t[1], "t_exec": t[2]}
+                           for t in sorted(only_rob, key=lambda x: x[2])],
+        ),
         n_candidates=dict(shoot=len(shoot_cand), photo=len(photo_cand)),
         n_unique_targets_with_candidates=dict(
             shoot=n_unique_shoot, photo=n_unique_photo),
         n_selected=dict(total=len(selected), shoot=n_shoot_sel, photo=n_photo_sel),
         expected_shoot_hits=expected_hits,
+        objective_function_semantics=(
+            "max ∑ x_i, 完成数 = 不同目标数 (而非射击次数). "
+            "假设单次 0.85 命中已为工程容差, 无需重射. "
+            "(三审一致建议, 见 Q4_三审综合.md §3)"),
         selected=[
             {
                 "rank": i + 1,
