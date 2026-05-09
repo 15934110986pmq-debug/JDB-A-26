@@ -1,0 +1,8 @@
+﻿指标,数值
+SSE_no_fixed_component,3065.8834739922627
+SSE_with_fixed_component,2994.5295605129186
+N,1202.0
+N_eff,45.14961345228892
+BIC_eff_no_fixed_component,42.275792595467486
+BIC_eff_with_fixed_component,48.83254450951491
+Delta_BIC_eff,6.556751914047425

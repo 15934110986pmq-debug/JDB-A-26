@@ -1,8 +1,21 @@
-# 2026 金地杯数学建模竞赛 — A 题工作仓库
+# 2026 数学建模竞赛 — A 题工作仓库（双队并行）
 
 > 多源融合机器人定位 + 任务调度优化（4 小问 + result.xlsx）
 >
-> **状态：Q1–Q4 全部完成 + 论文初版** （2026-05-09）
+> **状态：xk / xr 两支独立队伍均已完成 Q1–Q4 + 论文** （2026-05-10）
+
+## 两支独立参赛队伍
+
+本仓库下 **xk** 与 **xr** 是**两支独立的参赛队伍**，分别完成同一道 A 题但建模思路、代码、数据、论文文字**完全独立**，互不引用、互不借用。
+
+| 队伍 | 工作区 | 论文交付包 | 风格定位 |
+|---|---|---|---|
+| **xk** | `xk/` | `submission/` | KF/RTS + 静态 BLUE + 多盆地诊断 + 分层目标 ILP；激进任务数（34 任务，29 射 + 5 拍） |
+| **xr** | `xr_submission/{paper,code,figures,output}/` | `xr_submission/paper/` | 剖面 LS + SG 平滑 + 静态 BLUE + 三重证据稳健诊断 + 候选执行窗 + 0-1 ILP；稳健调度（35 任务，15 射 + 20 拍） |
+
+**严格隔离规则**：xk 论文/代码只引 `xk/`；xr 论文/代码只引 `xr_submission/`；两边不得有内容交叉引用、相同段落、相同图命名规则、相同方法论术语借用，详见 `MEMORY.md` 与 `feedback_xk_xr_isolation.md`。
+
+格式规范见根目录 `全国大学生数学建模竞赛论文格式规范（2026年修订稿）.pdf`，电子版六条硬性条件：≤20 MB、首页摘要、不要目录、附录强制源码、不出现身份信息、单文件不压缩。
 
 ## 目录结构
 
@@ -10,38 +23,44 @@
 .
 ├── README.md                       # 本文件
 ├── CLAUDE.md                       # AI 协作上下文（项目类型/约定/决策沉淀）
+├── 全国大学生数学建模竞赛论文格式规范（2026年修订稿）.pdf  # 国赛电子版规范（双队共用）
 ├── 26金地杯赛题/2026金地杯/2026_A题/   # 官方题目与附件（原件，未改动）
 │   ├── 2026_A题.docx
 │   ├── 附件1.xlsx ~ 附件4.xlsx
 │   └── result.xlsx                 # 提交模板
-└── xk/                             # 解题主目录
-    ├── README.md                   # 解题路线 + 约束速查
-    ├── code/                       # 求解脚本
-    │   ├── explore.py              # 数据画像
-    │   ├── q_utils.py              # 共享 LS 代价 / 插值 / fuse_10hz
-    │   ├── q1_solve.py             # Q1 省奖：单参数 Brent + 线性插值
-    │   ├── q1_kalman.py            # Q1 国奖 v2：6D CA + KF/RTS + EM + LRT
-    │   ├── q2_solve.py             # Q2：三参数联合估计 + 静态 BLUE + Bootstrap
-    │   ├── q2_kalman.py            # Q2：Kalman/RTS 融合 + NIS 一致性
-    │   ├── q2_validation.py        # Q2：创新 ACF / N_eff / RTS 减幅实测
-    │   ├── q2_basin_compare.py     # Q2：多盆地实证对比（红队回应）
-    │   ├── q2_dxdy_contour.py      # Q2：(Δx, Δy) 凸性诊断
-    │   ├── q3_solve.py             # Q3：不等方差 BLUE + F 检验 + KF/RTS
-    │   └── q4_solve.py             # Q4：滑动窗 + 分层目标 ILP + chance constraint
-    ├── data/                       # 附件副本（与官方 md5 一致）
-    ├── docs/                       # 题目原件 + 整理 markdown（含公式还原）
-    ├── figures/                    # 论文用图（含 Q1-Q4 各诊断图）
-    ├── output/                     # 结果 + Q{1-4}_summary.json
-    └── paper/                      # 论文章节
-        ├── CONVENTIONS.md          # 跨章节符号 / 章节模板 / docx patch 清单
-        ├── 00_论文骨架.md           # 8 章顶层框架蓝图
-        ├── A题论文_v1初版.md        # 完整初版整合
-        ├── Q1.md / Q1_Gv2.docx     # Q1 章节（双版本）
-        ├── Q2.md                   # Q2 章节
-        ├── Q3.md                   # Q3 章节
-        ├── Q4.md                   # Q4 章节
-        ├── Q{2,3,4}_审查清单.md     # 多 AI 红队审查清单
-        └── Q{2,3,4}_三审综合.md     # 红队结果汇总 + P0/P1/P2 处置
+│
+├── xk/                             # 【xk 队】解题主目录
+│   ├── README.md                   # 解题路线 + 约束速查
+│   ├── code/                       # 求解脚本
+│   │   ├── explore.py              # 数据画像
+│   │   ├── q_utils.py              # 共享 LS 代价 / 插值 / fuse_10hz
+│   │   ├── q1_solve.py             # Q1 省奖：单参数 Brent + 线性插值
+│   │   ├── q1_kalman.py            # Q1 国奖 v2：6D CA + KF/RTS + EM + LRT
+│   │   ├── q2_solve.py             # Q2：三参数联合估计 + 静态 BLUE + Bootstrap
+│   │   ├── q2_kalman.py            # Q2：Kalman/RTS 融合 + NIS 一致性
+│   │   ├── q2_validation.py        # Q2：创新 ACF / N_eff / RTS 减幅实测
+│   │   ├── q2_basin_compare.py     # Q2：多盆地实证对比（红队回应）
+│   │   ├── q2_dxdy_contour.py     # Q2：(Δx, Δy) 凸性诊断
+│   │   ├── q3_solve.py             # Q3：不等方差 BLUE + F 检验 + KF/RTS
+│   │   └── q4_solve.py             # Q4：滑动窗 + 分层目标 ILP + chance constraint
+│   ├── data/                       # 附件副本（与官方 md5 一致）
+│   ├── docs/                       # 题目原件 + 整理 markdown
+│   ├── figures/                    # 论文用图（首字母大写命名）
+│   ├── output/                     # 结果 + Q{1-4}_summary.json
+│   └── paper/                      # 论文章节（CONVENTIONS / 三审清单 / v1 整合稿）
+│
+└── xr_submission/                  # 【xr 队】解题主目录（独立交付）
+    ├── code/                       # 求解脚本（首字母小写命名）
+    │   ├── program1.py             # Q1：CubicSpline/PCHIP 插值 + 1D 时间偏差最小二乘
+    │   ├── program2.py             # Q2：剖面 LS + SG 平滑分离 + 静态 BLUE 协方差融合
+    │   ├── program3.py             # Q3：Block Bootstrap + Newey-West HAC + N_eff BIC 三重证据
+    │   ├── program4.py             # Q4：300 Hz 加密 + 候选执行窗 + 冲突图 + 两阶段 0-1 ILP
+    │   └── build_docx.py           # md→docx 转换器（自写，按国赛 2026 规范）
+    ├── figures/                    # 18 张诊断图
+    ├── output/                     # q{1,2,3,3_final,4_second}_outputs/ 全部 csv + xlsx + png
+    └── paper/
+        ├── A题_XR第二版.md          # 论文 markdown 主稿
+        └── A题_XR第二版.docx        # 国赛规范电子版（≤20 MB / 首页摘要 / 不要目录 / 附录全源码）
 ```
 
 ## 环境
@@ -59,6 +78,8 @@ uv pip install --python .venv/bin/python \
 
 ## 运行
 
+**xk 队脚本**：
+
 ```bash
 .venv/bin/python xk/code/explore.py     # 数据画像
 .venv/bin/python xk/code/q1_solve.py    # Q1 省奖
@@ -67,6 +88,17 @@ uv pip install --python .venv/bin/python \
 .venv/bin/python xk/code/q2_kalman.py   # Q2 KF/RTS 融合
 .venv/bin/python xk/code/q3_solve.py    # Q3 不等方差 BLUE + F 检验
 .venv/bin/python xk/code/q4_solve.py    # Q4 分层目标 ILP 调度
+```
+
+**xr 队脚本**（在 `xr_submission/code/` 下执行；需附件 1-4 同目录）：
+
+```bash
+cd xr_submission/code
+python program1.py                       # Q1：时间偏差估计
+python program2.py                       # Q2：剖面 LS + BLUE 融合
+python program3.py                       # Q3：三重证据稳健诊断
+python program4.py                       # Q4：300 Hz 加密 + 候选窗 + ILP 调度
+python build_docx.py                     # md → docx（国赛规范输出）
 ```
 
 ## 当前进度
@@ -137,6 +169,19 @@ uv pip install --python .venv/bin/python \
 | 时段过渡 $\epsilon$ | $0$ | $0.1$ s |
 | 鲁棒约束 | — | chance constraint $z = 1.645$（90% 单侧）|
 | ILP 规模 | 323 候选 + 36 覆盖变量 + ~5000 时段冲突约束（亚秒级收敛）|
+
+## xr 队四问关键结果（独立交付）
+
+xr 队走"统计严谨 + 工程可执行"路线，与 xk 的"激进任务数"路线形成对比。
+
+| 问 | 关键数值 | 备注 |
+|---|---|---|
+| Q1 | $\widehat{\tau}=198.4317$ s，RMSE $=3.62\times10^{-8}$ m，速度 RMSE $=6.05\times10^{-9}$ m/s | 三类一致性同时满足 |
+| Q2 | $\widehat{\tau}=50.4429$ s，$\widehat{\mathbf{b}}=(3.475,\,-1.834)$ m，融合 95% 椭圆 12.5→**6.23** m² | SG 平滑分离 + 剖面 LS + 静态 BLUE |
+| Q3 | $\widehat{\tau}=-368.17$ s，候选 $\|\widehat{\mathbf{b}}\|=0.244$ m；Bootstrap CI 含 0、HAC 长滞后不显著、$\Delta\mathrm{BIC}_\mathrm{eff}=+6.56$ | **三重证据均不支持固定偏差** |
+| Q4 | **35 任务**（15 射 + 20 拍）；拍照 **18/18 全覆盖**；射击 15/18（与 $S_{13}/S_{17}/S_{18}$ 物理不可达上限一致）；期望命中 12.75 | 300 Hz 加密 + 角度分桶 + 冲突图 + 两阶段 ILP |
+
+> xr 第四问拿到 18/18 拍照覆盖与 xk 红队"5/18 物理上限"结论存在差异，是两支独立队伍对同一题做出的不同建模选择，按"双队各自交付"处理；详 `xr_submission/paper/A题_XR第二版.md` §5.4.8 物理可达性诊断。
 
 ## 多 AI 红队验证范式
 
