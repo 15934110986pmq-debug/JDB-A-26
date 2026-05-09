@@ -80,6 +80,10 @@ ROBUST_Z = 1.645
 SIGMA_V_REL = 0.05
 # 任务间过渡时间 (武器/相机切换), 三方一致建议 0.1 s
 EPSILON_TRANSITION = 0.1
+# 分层目标 ILP: max M·Σy_g + Σx_i, 优先覆盖更多不同目标 (解决拍照/射击失衡)
+# y_g = 1 当且仅当 (任务类型, 目标编号) 至少被 1 个候选选中
+# M = 100 足以让覆盖项主导, 之后才在覆盖固定下加密总数
+COVERAGE_WEIGHT = 100.0
 
 
 # =====================================================================
@@ -164,9 +168,9 @@ def _sigma_d(kin, target):
 
 
 def shoot_candidates(S, S_id, kin, W_aim, robust: bool = False,
-                     epsilon_inseg: float = 0.0):
+                     epsilon_inseg: float = 0.0, step_pts_override: int = None):
     """对每个射击目标找候选执行时刻段;
-    段内按 (T_aim + epsilon_inseg) 间隔密集取多个候选 (允许同目标多次射击).
+    段内按 step_pts (默认 (T_aim + epsilon_inseg)) 间隔取多个候选.
 
     robust=True 时启用 chance constraint:
         d - z·σ_d ≥ d_min (左下界)
@@ -176,7 +180,10 @@ def shoot_candidates(S, S_id, kin, W_aim, robust: bool = False,
     """
     cands = []
     z = ROBUST_Z if robust else 0.0
-    step_pts = max(1, int(round((T_AIM + epsilon_inseg) / kin["dt"])))
+    if step_pts_override is not None:
+        step_pts = max(1, int(step_pts_override))
+    else:
+        step_pts = max(1, int(round((T_AIM + epsilon_inseg) / kin["dt"])))
     for i, s in enumerate(S):
         d = np.hypot(kin["x"] - s[0], kin["y"] - s[1])
         sigma_d = _sigma_d(kin, s) if robust else np.zeros_like(d)
@@ -216,16 +223,21 @@ def shoot_candidates(S, S_id, kin, W_aim, robust: bool = False,
 
 
 def photo_candidates(P, P_id, kin, W_aim, ang_diff_rad, robust: bool = False,
-                     epsilon_inseg: float = 0.0):
-    """对每个拍照目标找多个候选; 段内按 (T_focus + epsilon_inseg) 间隔密集放多候选.
+                     epsilon_inseg: float = 0.0, step_pts_override: int = None):
+    """对每个拍照目标找多个候选; 段内按 step_pts (默认 (T_focus + epsilon)) 间隔放多候选.
 
     同目标候选保留视角差 ≥ ang_diff_rad 的 (鼓励多角度).
 
     robust=True 同 shoot_candidates 启用 chance constraint.
+    step_pts_override: 强制段内步长 (单位: 采样点); 设为 1 时每个采样点都生成候选,
+        即使候选互相时段冲突 — 让 ILP 自由挑选最不冲突的子集.
     """
     cands = []
     z = ROBUST_Z if robust else 0.0
-    step_pts = max(1, int(round((T_FOCUS + epsilon_inseg) / kin["dt"])))
+    if step_pts_override is not None:
+        step_pts = max(1, int(step_pts_override))
+    else:
+        step_pts = max(1, int(round((T_FOCUS + epsilon_inseg) / kin["dt"])))
     for i, p in enumerate(P):
         d = np.hypot(kin["x"] - p[0], kin["y"] - p[1])
         sigma_d = _sigma_d(kin, p) if robust else np.zeros_like(d)
@@ -283,13 +295,22 @@ def photo_candidates(P, P_id, kin, W_aim, ang_diff_rad, robust: bool = False,
 # =====================================================================
 def weighted_interval_scheduling_with_uniqueness(all_cand, epsilon: float = 0.0,
                                                   shoot_unique: bool = False,
-                                                  shoot_max_per_target: int = None):
+                                                  shoot_max_per_target: int = None,
+                                                  coverage_weight: float = 0.0,
+                                                  photo_coverage_weight: float = None):
     """加权区间调度 (ILP):
        - 时段不重叠: t_exec_i + ε ≤ t_prep_j
        - shoot_unique=True: 射击同目标 ∑ x ≤ 1 (旧版严约束)
        - shoot_max_per_target=K: 射击同目标 ≤ K 次 (允许 "补射", 取消 unique)
        - shoot_unique=False AND shoot_max=None: 完全不约束
        - 拍照: 同目标按视角差 ≥ 60° 在候选生成阶段已去重
+
+       分层目标 (字典序近似, M_photo > M_shoot > 1):
+           max  M_photo · Σ_g_photo y_g + M_shoot · Σ_g_shoot y_g + Σ_i x_i
+           s.t. y_g ≤ Σ_{i: (type,target)=g} x_i  (目标 g 被至少 1 次任务覆盖才算)
+       拍照权重 > 射击权重 是为破除平局, 强制 ILP 优先覆盖每个不同 拍照 目标.
+       coverage_weight = 0 时退化为旧版 max Σ x_i.
+       photo_coverage_weight 默认 = 10 × coverage_weight.
     """
     if not all_cand:
         return []
@@ -302,14 +323,42 @@ def weighted_interval_scheduling_with_uniqueness(all_cand, epsilon: float = 0.0,
     # 用 scipy.milp 求解 ILP (最优)
     try:
         from scipy.optimize import milp, LinearConstraint, Bounds
-        c_obj = -np.ones(n)
+
+        # 分层目标: 决策变量 = [x_0..x_{n-1}, y_g0..y_g{G-1}]
+        # 覆盖键: (任务类型, 目标编号) — 同一目标射击/拍照算两个不同覆盖
+        cover_keys = []
+        cover_idx_map = {}
+        if coverage_weight > 0:
+            seen = set()
+            for cc in cand:
+                key = (cc["type"], cc["target"])
+                if key not in seen:
+                    seen.add(key)
+                    cover_idx_map[key] = len(cover_keys)
+                    cover_keys.append(key)
+        G = len(cover_keys)
+        N_var = n + G  # x + y
+
+        # 目标 (scipy.milp minimizes c^T x ⇒ negate)
+        # 分层权重: 拍照覆盖 > 射击覆盖 > 总数
+        if photo_coverage_weight is None:
+            w_photo_cov = 10.0 * float(coverage_weight)
+        else:
+            w_photo_cov = float(photo_coverage_weight)
+        w_shoot_cov = float(coverage_weight)
+        c_obj = np.zeros(N_var)
+        c_obj[:n] = -1.0                            # max Σ x_i
+        for g_key, g_idx in cover_idx_map.items():
+            c_obj[n + g_idx] = (-w_photo_cov if g_key[0] == '拍照'
+                                else -w_shoot_cov)
+
         rows = []
         b_ub_list = []
         # 时段冲突: x_i + x_j ≤ 1
         for i in range(n):
             for j in range(i + 1, n):
                 if cand[i]["t_exec"] + epsilon > cand[j]["t_prep"]:
-                    row = np.zeros(n)
+                    row = np.zeros(N_var)
                     row[i] = 1; row[j] = 1
                     rows.append(row)
                     b_ub_list.append(1.0)
@@ -323,11 +372,22 @@ def weighted_interval_scheduling_with_uniqueness(all_cand, epsilon: float = 0.0,
                     shoot_by_target.setdefault(cc["target"], []).append(i)
             for tgt, idxs in shoot_by_target.items():
                 if len(idxs) > K_per_target:
-                    row = np.zeros(n)
+                    row = np.zeros(N_var)
                     for i in idxs:
                         row[i] = 1
                     rows.append(row)
                     b_ub_list.append(float(K_per_target))
+        # 覆盖约束: y_g - Σ_{i: target=g} x_i ≤ 0
+        if coverage_weight > 0:
+            for g_key, g_idx in cover_idx_map.items():
+                row = np.zeros(N_var)
+                row[n + g_idx] = 1.0
+                for i, cc in enumerate(cand):
+                    if (cc["type"], cc["target"]) == g_key:
+                        row[i] = -1.0
+                rows.append(row)
+                b_ub_list.append(0.0)
+
         if rows:
             A = np.vstack(rows)
             b_ub = np.array(b_ub_list)
@@ -336,12 +396,21 @@ def weighted_interval_scheduling_with_uniqueness(all_cand, epsilon: float = 0.0,
             constraints = []
         result = milp(
             c_obj, constraints=constraints,
-            integrality=np.ones(n, dtype=int),
+            integrality=np.ones(N_var, dtype=int),
             bounds=Bounds(lb=0, ub=1),
+            options=dict(disp=False, mip_rel_gap=1e-12),
         )
         if result.success:
-            x_sol = result.x
+            x_sol = result.x[:n]
+            y_sol = result.x[n:] if G > 0 else np.array([])
             sel_idx = [i for i in range(n) if x_sol[i] > 0.5]
+            n_y_photo = sum(1 for k, idx in cover_idx_map.items()
+                            if k[0] == '拍照' and y_sol[idx] > 0.5) if G > 0 else 0
+            n_y_shoot = sum(1 for k, idx in cover_idx_map.items()
+                            if k[0] == '射击' and y_sol[idx] > 0.5) if G > 0 else 0
+            print(f"  [ILP] obj={-result.fun:.2f}, n_sel={len(sel_idx)}, "
+                  f"y_photo_cov={n_y_photo}, y_shoot_cov={n_y_shoot} "
+                  f"(M_p={w_photo_cov}, M_s={w_shoot_cov})")
             return [cand[i] for i in sel_idx]
         else:
             print(f"  [警告] ILP 求解失败 ({result.message}), 回退到贪心")
@@ -551,7 +620,8 @@ def main():
         pc_test = photo_candidates(P, P_id, kin, W_aim_p, np.deg2rad(ANG_DIFF_DEG),
                                     robust=False, epsilon_inseg=0.0)
         sel_test = weighted_interval_scheduling_with_uniqueness(
-            sc_test + pc_test, epsilon=0.0, shoot_max_per_target=K_test)
+            sc_test + pc_test, epsilon=0.0, shoot_max_per_target=K_test,
+            coverage_weight=COVERAGE_WEIGHT)
         n_s_t = sum(1 for c in sel_test if c["type"] == '射击')
         n_p_t = sum(1 for c in sel_test if c["type"] == '拍照')
         K_scan_results.append((K_test, len(sel_test), n_s_t, n_p_t))
@@ -576,9 +646,10 @@ def main():
     #   - 不加 chance constraint (那是工程鲁棒化, 非题面要求)
     # 鲁棒解保留为敏感性对照
 
-    # ===== 标称解 (P0 修正前的基线) =====
+    # ===== 标称解 (覆盖均衡, P0 修正前的基线) =====
     # 段内密集取候选, 同目标射击 ≤ K, 拍照按 60° 视角差去重
-    print(f"\n========== 标称解 (ε=0, 段内密集, 射击同目标 ≤ {SHOOT_MAX_PER_TARGET}) ==========")
+    # 分层目标: max M·Σy_g + Σx_i — 先覆盖更多不同目标, 再加密总数
+    print(f"\n========== 标称解 (覆盖均衡, ε=0, 段内密集, 射击同目标 ≤ {SHOOT_MAX_PER_TARGET}, M={COVERAGE_WEIGHT}) ==========")
     shoot_cand_nom = shoot_candidates(S, S_id, kin, W_aim_s, robust=False,
                                        epsilon_inseg=0.0)
     photo_cand_nom = photo_candidates(P, P_id, kin, W_aim_p,
@@ -586,15 +657,20 @@ def main():
                                       epsilon_inseg=0.0)
     all_cand_nom = shoot_cand_nom + photo_cand_nom
     selected_nom = weighted_interval_scheduling_with_uniqueness(
-        all_cand_nom, epsilon=0.0, shoot_max_per_target=SHOOT_MAX_PER_TARGET)
+        all_cand_nom, epsilon=0.0, shoot_max_per_target=SHOOT_MAX_PER_TARGET,
+        coverage_weight=COVERAGE_WEIGHT)
     selected_nom.sort(key=lambda c: c["t_prep"])
     n_shoot_nom = sum(1 for c in selected_nom if c["type"] == '射击')
     n_photo_nom = sum(1 for c in selected_nom if c["type"] == '拍照')
+    cov_s_nom = len({c["target"] for c in selected_nom if c["type"] == '射击'})
+    cov_p_nom = len({c["target"] for c in selected_nom if c["type"] == '拍照'})
     print(f"  候选 {len(all_cand_nom)} → 入选 {len(selected_nom)} "
           f"({n_shoot_nom} 射击 + {n_photo_nom} 拍照)")
+    print(f"  覆盖目标: 射击 {cov_s_nom}/{len(S)}, 拍照 {cov_p_nom}/{len(P)} "
+          f"(共 {cov_s_nom + cov_p_nom} 个不同 (任务×目标) 对)")
 
-    # ===== 鲁棒解 (chance constraint + ε = 0.1s + 段内密集) =====
-    print(f"\n========== 鲁棒解 (chance z={ROBUST_Z}, ε={EPSILON_TRANSITION}s, 射击同目标 ≤ {SHOOT_MAX_PER_TARGET}) ==========")
+    # ===== 鲁棒解 (chance constraint + ε = 0.1s + 段内密集 + 覆盖均衡) =====
+    print(f"\n========== 鲁棒解 (覆盖均衡, chance z={ROBUST_Z}, ε={EPSILON_TRANSITION}s, K ≤ {SHOOT_MAX_PER_TARGET}, M={COVERAGE_WEIGHT}) ==========")
     print(f"  σ_x ≈ σ_y mean = {kin['sigma_x'].mean():.3f} m (KF 后验)")
     print(f"  σ_v = {SIGMA_V_REL*100:.0f}% × |v|")
     shoot_cand_rob = shoot_candidates(S, S_id, kin, W_aim_s, robust=True,
@@ -605,15 +681,20 @@ def main():
     all_cand_rob = shoot_cand_rob + photo_cand_rob
     selected_rob = weighted_interval_scheduling_with_uniqueness(
         all_cand_rob, epsilon=EPSILON_TRANSITION,
-        shoot_max_per_target=SHOOT_MAX_PER_TARGET)
+        shoot_max_per_target=SHOOT_MAX_PER_TARGET,
+        coverage_weight=COVERAGE_WEIGHT)
     selected_rob.sort(key=lambda c: c["t_prep"])
     n_shoot_rob = sum(1 for c in selected_rob if c["type"] == '射击')
     n_photo_rob = sum(1 for c in selected_rob if c["type"] == '拍照')
+    cov_s_rob = len({c["target"] for c in selected_rob if c["type"] == '射击'})
+    cov_p_rob = len({c["target"] for c in selected_rob if c["type"] == '拍照'})
     print(f"  鲁棒候选 {len(all_cand_rob)} → 入选 {len(selected_rob)} "
           f"({n_shoot_rob} 射击 + {n_photo_rob} 拍照)")
+    print(f"  覆盖目标: 射击 {cov_s_rob}/{len(S)}, 拍照 {cov_p_rob}/{len(P)} "
+          f"(共 {cov_s_rob + cov_p_rob} 个不同 (任务×目标) 对)")
     n_unique_shoot_rob = len({c["target"] for c in shoot_cand_rob})
     n_unique_photo_rob = len({c["target"] for c in photo_cand_rob})
-    print(f"  鲁棒候选覆盖: 射击 {n_unique_shoot_rob}/{len(S)} 目标, "
+    print(f"  鲁棒候选覆盖 (上限): 射击 {n_unique_shoot_rob}/{len(S)} 目标, "
           f"拍照 {n_unique_photo_rob}/{len(P)} 目标")
 
     # ===== 标称 vs 鲁棒 对照 =====

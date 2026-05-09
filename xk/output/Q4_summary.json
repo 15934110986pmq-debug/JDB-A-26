@@ -30,32 +30,37 @@
   },
   "nominal_solution": {
     "n_candidates": 323,
-    "n_selected": 35,
-    "n_shoot": 31,
-    "n_photo": 4,
-    "expected_hits": 26.349999999999998,
+    "n_selected": 34,
+    "n_shoot": 29,
+    "n_photo": 5,
+    "expected_hits": 24.65,
     "note": "标称解, 无鲁棒约束, 无过渡时间. 含边界值候选 (S06 d=5.02, P10 v=1.500)."
   },
   "robust_solution": {
     "n_candidates": 275,
-    "n_selected": 32,
-    "n_shoot": 29,
-    "n_photo": 3,
-    "expected_hits": 24.65,
+    "n_selected": 31,
+    "n_shoot": 27,
+    "n_photo": 4,
+    "expected_hits": 22.95,
     "note": "主交付. chance constraint z=1.645 + ε=0.1s 过渡时间."
   },
   "comparison": {
-    "common": 1,
+    "common": 0,
     "only_nominal": 34,
     "only_robust": 31,
     "removed_by_robust": [
       {
-        "target": "S08",
+        "target": "P18",
+        "type": "拍照",
+        "t_exec": 445.5
+      },
+      {
+        "target": "S06",
         "type": "射击",
         "t_exec": 448.0
       },
       {
-        "target": "S08",
+        "target": "S07",
         "type": "射击",
         "t_exec": 449.5
       },
@@ -70,17 +75,17 @@
         "t_exec": 452.5
       },
       {
-        "target": "S07",
+        "target": "S04",
         "type": "射击",
         "t_exec": 454.0
       },
       {
-        "target": "S09",
+        "target": "S06",
         "type": "射击",
         "t_exec": 455.5
       },
       {
-        "target": "S09",
+        "target": "S05",
         "type": "射击",
         "t_exec": 457.0
       },
@@ -90,12 +95,12 @@
         "t_exec": 458.5
       },
       {
-        "target": "S06",
+        "target": "S09",
         "type": "射击",
         "t_exec": 460.0
       },
       {
-        "target": "S05",
+        "target": "S08",
         "type": "射击",
         "t_exec": 461.5
       },
@@ -105,19 +110,19 @@
         "t_exec": 463.0
       },
       {
-        "target": "S09",
+        "target": "S07",
         "type": "射击",
         "t_exec": 464.5
       },
       {
-        "target": "S07",
+        "target": "S04",
         "type": "射击",
         "t_exec": 466.0
       },
       {
-        "target": "S05",
+        "target": "S06",
         "type": "射击",
-        "t_exec": 467.5
+        "t_exec": 468.0
       },
       {
         "target": "S03",
@@ -125,7 +130,7 @@
         "t_exec": 469.6
       },
       {
-        "target": "S02",
+        "target": "S01",
         "type": "射击",
         "t_exec": 478.5
       },
@@ -140,34 +145,14 @@
         "t_exec": 480.4
       },
       {
-        "target": "S02",
-        "type": "射击",
-        "t_exec": 493.3
-      },
-      {
-        "target": "S01",
-        "type": "射击",
-        "t_exec": 494.8
+        "target": "P02",
+        "type": "拍照",
+        "t_exec": 493.4
       },
       {
         "target": "P01",
         "type": "拍照",
         "t_exec": 508.3
-      },
-      {
-        "target": "S11",
-        "type": "射击",
-        "t_exec": 510.9
-      },
-      {
-        "target": "S12",
-        "type": "射击",
-        "t_exec": 515.4
-      },
-      {
-        "target": "S12",
-        "type": "射击",
-        "t_exec": 518.4
       },
       {
         "target": "S10",
@@ -190,12 +175,12 @@
         "t_exec": 750.3
       },
       {
-        "target": "S16",
+        "target": "S15",
         "type": "射击",
         "t_exec": 751.8
       },
       {
-        "target": "S16",
+        "target": "S14",
         "type": "射击",
         "t_exec": 753.3
       },
@@ -207,47 +192,67 @@
       {
         "target": "S11",
         "type": "射击",
-        "t_exec": 771.3
+        "t_exec": 780.3
       },
       {
         "target": "S11",
         "type": "射击",
-        "t_exec": 790.8
+        "t_exec": 786.3
       },
       {
         "target": "S12",
         "type": "射击",
         "t_exec": 795.3
+      },
+      {
+        "target": "S12",
+        "type": "射击",
+        "t_exec": 798.3
+      },
+      {
+        "target": "S12",
+        "type": "射击",
+        "t_exec": 801.3
+      },
+      {
+        "target": "S11",
+        "type": "射击",
+        "t_exec": 808.8
       }
     ],
     "new_in_robust": [
+      {
+        "target": "P13",
+        "type": "拍照",
+        "t_exec": 445.5
+      },
       {
         "target": "P15",
         "type": "拍照",
         "t_exec": 446.6
       },
       {
-        "target": "S09",
+        "target": "S06",
         "type": "射击",
         "t_exec": 449.7
       },
       {
-        "target": "S04",
+        "target": "S05",
         "type": "射击",
         "t_exec": 451.3
       },
       {
-        "target": "S08",
+        "target": "S07",
         "type": "射击",
         "t_exec": 452.9
       },
       {
-        "target": "S07",
+        "target": "S06",
         "type": "射击",
         "t_exec": 454.5
       },
       {
-        "target": "S06",
+        "target": "S07",
         "type": "射击",
         "t_exec": 456.1
       },
@@ -257,37 +262,37 @@
         "t_exec": 457.7
       },
       {
-        "target": "S08",
+        "target": "S09",
         "type": "射击",
         "t_exec": 459.3
       },
       {
-        "target": "S04",
+        "target": "S08",
         "type": "射击",
         "t_exec": 460.9
       },
       {
-        "target": "S08",
+        "target": "S04",
         "type": "射击",
         "t_exec": 462.5
       },
       {
-        "target": "S09",
+        "target": "S05",
         "type": "射击",
         "t_exec": 464.1
       },
       {
-        "target": "S05",
+        "target": "S08",
         "type": "射击",
         "t_exec": 465.7
       },
       {
-        "target": "S07",
+        "target": "S09",
         "type": "射击",
         "t_exec": 467.3
       },
       {
-        "target": "S07",
+        "target": "S09",
         "type": "射击",
         "t_exec": 468.9
       },
@@ -302,39 +307,24 @@
         "t_exec": 480.4
       },
       {
-        "target": "S01",
+        "target": "S03",
         "type": "射击",
         "t_exec": 482.0
       },
       {
-        "target": "S02",
-        "type": "射击",
-        "t_exec": 493.5
+        "target": "P03",
+        "type": "拍照",
+        "t_exec": 493.7
       },
       {
-        "target": "S02",
-        "type": "射击",
-        "t_exec": 495.1
-      },
-      {
-        "target": "P01",
+        "target": "P02",
         "type": "拍照",
         "t_exec": 508.6
       },
       {
-        "target": "S12",
-        "type": "射击",
-        "t_exec": 517.9
-      },
-      {
-        "target": "S12",
-        "type": "射击",
-        "t_exec": 519.5
-      },
-      {
         "target": "S11",
         "type": "射击",
-        "t_exec": 522.7
+        "t_exec": 525.9
       },
       {
         "target": "S11",
@@ -357,24 +347,34 @@
         "t_exec": 537.1
       },
       {
-        "target": "S16",
+        "target": "S15",
         "type": "射击",
         "t_exec": 750.7
       },
       {
-        "target": "S16",
+        "target": "S14",
         "type": "射击",
         "t_exec": 752.3
       },
       {
         "target": "S12",
         "type": "射击",
-        "t_exec": 772.5
+        "t_exec": 764.1
+      },
+      {
+        "target": "S12",
+        "type": "射击",
+        "t_exec": 807.7
+      },
+      {
+        "target": "S12",
+        "type": "射击",
+        "t_exec": 809.3
       },
       {
         "target": "S11",
         "type": "射击",
-        "t_exec": 812.5
+        "t_exec": 810.9
       }
     ]
   },
@@ -387,11 +387,11 @@
     "photo": 18
   },
   "n_selected": {
-    "total": 35,
-    "shoot": 31,
-    "photo": 4
+    "total": 34,
+    "shoot": 29,
+    "photo": 5
   },
-  "expected_shoot_hits": 26.349999999999998,
+  "expected_shoot_hits": 24.65,
   "objective_function_semantics": "max ∑ x_i, 完成数 = 不同目标数 (而非射击次数). 假设单次 0.85 命中已为工程容差, 无需重射. (三审一致建议, 见 Q4_三审综合.md §3)",
   "selected": [
     {
@@ -407,22 +407,22 @@
     },
     {
       "rank": 2,
-      "target": "S08",
+      "target": "S06",
       "type": "射击",
       "t_prep": 446.5,
       "t_exec": 448.0,
-      "distance_m": 9.706,
+      "distance_m": 6.765,
       "speed_mps": 0.014,
       "accel_mps2": 0.115,
       "view_angle_deg": null
     },
     {
       "rank": 3,
-      "target": "S08",
+      "target": "S07",
       "type": "射击",
       "t_prep": 448.0,
       "t_exec": 449.5,
-      "distance_m": 9.672,
+      "distance_m": 15.172,
       "speed_mps": 0.149,
       "accel_mps2": 0.098,
       "view_angle_deg": null
@@ -451,33 +451,33 @@
     },
     {
       "rank": 6,
-      "target": "S07",
+      "target": "S04",
       "type": "射击",
       "t_prep": 452.5,
       "t_exec": 454.0,
-      "distance_m": 15.235,
+      "distance_m": 18.691,
       "speed_mps": 0.214,
       "accel_mps2": 0.395,
       "view_angle_deg": null
     },
     {
       "rank": 7,
-      "target": "S09",
+      "target": "S06",
       "type": "射击",
       "t_prep": 454.0,
       "t_exec": 455.5,
-      "distance_m": 21.33,
+      "distance_m": 6.237,
       "speed_mps": 0.28,
       "accel_mps2": 0.058,
       "view_angle_deg": null
     },
     {
       "rank": 8,
-      "target": "S09",
+      "target": "S05",
       "type": "射击",
       "t_prep": 455.5,
       "t_exec": 457.0,
-      "distance_m": 21.013,
+      "distance_m": 15.033,
       "speed_mps": 0.201,
       "accel_mps2": 0.147,
       "view_angle_deg": null
@@ -495,22 +495,22 @@
     },
     {
       "rank": 10,
-      "target": "S06",
+      "target": "S09",
       "type": "射击",
       "t_prep": 458.5,
       "t_exec": 460.0,
-      "distance_m": 6.289,
+      "distance_m": 20.591,
       "speed_mps": 0.372,
       "accel_mps2": 0.298,
       "view_angle_deg": null
     },
     {
       "rank": 11,
-      "target": "S05",
+      "target": "S08",
       "type": "射击",
       "t_prep": 460.0,
       "t_exec": 461.5,
-      "distance_m": 14.213,
+      "distance_m": 10.025,
       "speed_mps": 0.673,
       "accel_mps2": 0.118,
       "view_angle_deg": null
@@ -528,35 +528,35 @@
     },
     {
       "rank": 13,
-      "target": "S09",
+      "target": "S07",
       "type": "射击",
       "t_prep": 463.0,
       "t_exec": 464.5,
-      "distance_m": 20.951,
+      "distance_m": 13.839,
       "speed_mps": 0.384,
       "accel_mps2": 0.329,
       "view_angle_deg": null
     },
     {
       "rank": 14,
-      "target": "S07",
+      "target": "S04",
       "type": "射击",
       "t_prep": 464.5,
       "t_exec": 466.0,
-      "distance_m": 13.992,
+      "distance_m": 19.001,
       "speed_mps": 0.47,
       "accel_mps2": 0.252,
       "view_angle_deg": null
     },
     {
       "rank": 15,
-      "target": "S05",
+      "target": "S06",
       "type": "射击",
-      "t_prep": 466.0,
-      "t_exec": 467.5,
-      "distance_m": 14.474,
-      "speed_mps": 0.173,
-      "accel_mps2": 0.777,
+      "t_prep": 466.5,
+      "t_exec": 468.0,
+      "distance_m": 5.532,
+      "speed_mps": 0.578,
+      "accel_mps2": 0.847,
       "view_angle_deg": null
     },
     {
@@ -572,11 +572,11 @@
     },
     {
       "rank": 17,
-      "target": "S02",
+      "target": "S01",
       "type": "射击",
       "t_prep": 477.0,
       "t_exec": 478.5,
-      "distance_m": 8.212,
+      "distance_m": 16.487,
       "speed_mps": 1.63,
       "accel_mps2": 0.077,
       "view_angle_deg": null
@@ -605,28 +605,17 @@
     },
     {
       "rank": 20,
-      "target": "S02",
-      "type": "射击",
-      "t_prep": 491.8,
-      "t_exec": 493.3,
-      "distance_m": 23.724,
-      "speed_mps": 1.364,
-      "accel_mps2": 0.292,
-      "view_angle_deg": null
+      "target": "P02",
+      "type": "拍照",
+      "t_prep": 492.9,
+      "t_exec": 493.4,
+      "distance_m": 18.95,
+      "speed_mps": 1.342,
+      "accel_mps2": 0.236,
+      "view_angle_deg": -141.1
     },
     {
       "rank": 21,
-      "target": "S01",
-      "type": "射击",
-      "t_prep": 493.3,
-      "t_exec": 494.8,
-      "distance_m": 24.685,
-      "speed_mps": 1.491,
-      "accel_mps2": 0.315,
-      "view_angle_deg": null
-    },
-    {
-      "rank": 22,
       "target": "P01",
       "type": "拍照",
       "t_prep": 507.8,
@@ -637,40 +626,7 @@
       "view_angle_deg": 99.6
     },
     {
-      "rank": 23,
-      "target": "S11",
-      "type": "射击",
-      "t_prep": 509.4,
-      "t_exec": 510.9,
-      "distance_m": 17.344,
-      "speed_mps": 1.098,
-      "accel_mps2": 0.262,
-      "view_angle_deg": null
-    },
-    {
-      "rank": 24,
-      "target": "S12",
-      "type": "射击",
-      "t_prep": 513.9,
-      "t_exec": 515.4,
-      "distance_m": 24.864,
-      "speed_mps": 1.262,
-      "accel_mps2": 0.098,
-      "view_angle_deg": null
-    },
-    {
-      "rank": 25,
-      "target": "S12",
-      "type": "射击",
-      "t_prep": 516.9,
-      "t_exec": 518.4,
-      "distance_m": 23.984,
-      "speed_mps": 1.187,
-      "accel_mps2": 0.29,
-      "view_angle_deg": null
-    },
-    {
-      "rank": 26,
+      "rank": 22,
       "target": "S10",
       "type": "射击",
       "t_prep": 533.4,
@@ -681,7 +637,7 @@
       "view_angle_deg": null
     },
     {
-      "rank": 27,
+      "rank": 23,
       "target": "S10",
       "type": "射击",
       "t_prep": 534.9,
@@ -692,7 +648,7 @@
       "view_angle_deg": null
     },
     {
-      "rank": 28,
+      "rank": 24,
       "target": "S10",
       "type": "射击",
       "t_prep": 536.4,
@@ -703,7 +659,7 @@
       "view_angle_deg": null
     },
     {
-      "rank": 29,
+      "rank": 25,
       "target": "S16",
       "type": "射击",
       "t_prep": 748.8,
@@ -714,29 +670,29 @@
       "view_angle_deg": null
     },
     {
-      "rank": 30,
-      "target": "S16",
+      "rank": 26,
+      "target": "S15",
       "type": "射击",
       "t_prep": 750.3,
       "t_exec": 751.8,
-      "distance_m": 24.291,
+      "distance_m": 15.202,
       "speed_mps": 1.624,
       "accel_mps2": 0.181,
       "view_angle_deg": null
     },
     {
-      "rank": 31,
-      "target": "S16",
+      "rank": 27,
+      "target": "S14",
       "type": "射击",
       "t_prep": 751.8,
       "t_exec": 753.3,
-      "distance_m": 26.35,
+      "distance_m": 11.114,
       "speed_mps": 1.962,
       "accel_mps2": 0.248,
       "view_angle_deg": null
     },
     {
-      "rank": 32,
+      "rank": 28,
       "target": "S13",
       "type": "射击",
       "t_prep": 762.3,
@@ -747,29 +703,29 @@
       "view_angle_deg": null
     },
     {
-      "rank": 33,
+      "rank": 29,
       "target": "S11",
       "type": "射击",
-      "t_prep": 769.8,
-      "t_exec": 771.3,
-      "distance_m": 25.195,
-      "speed_mps": 0.113,
-      "accel_mps2": 0.412,
+      "t_prep": 778.8,
+      "t_exec": 780.3,
+      "distance_m": 23.609,
+      "speed_mps": 0.479,
+      "accel_mps2": 0.127,
       "view_angle_deg": null
     },
     {
-      "rank": 34,
+      "rank": 30,
       "target": "S11",
       "type": "射击",
-      "t_prep": 789.3,
-      "t_exec": 790.8,
-      "distance_m": 26.179,
-      "speed_mps": 0.253,
-      "accel_mps2": 0.417,
+      "t_prep": 784.8,
+      "t_exec": 786.3,
+      "distance_m": 24.04,
+      "speed_mps": 0.265,
+      "accel_mps2": 0.09,
       "view_angle_deg": null
     },
     {
-      "rank": 35,
+      "rank": 31,
       "target": "S12",
       "type": "射击",
       "t_prep": 793.8,
@@ -777,6 +733,39 @@
       "distance_m": 26.603,
       "speed_mps": 0.218,
       "accel_mps2": 0.238,
+      "view_angle_deg": null
+    },
+    {
+      "rank": 32,
+      "target": "S12",
+      "type": "射击",
+      "t_prep": 796.8,
+      "t_exec": 798.3,
+      "distance_m": 26.31,
+      "speed_mps": 0.141,
+      "accel_mps2": 0.034,
+      "view_angle_deg": null
+    },
+    {
+      "rank": 33,
+      "target": "S12",
+      "type": "射击",
+      "t_prep": 799.8,
+      "t_exec": 801.3,
+      "distance_m": 25.449,
+      "speed_mps": 0.487,
+      "accel_mps2": 0.195,
+      "view_angle_deg": null
+    },
+    {
+      "rank": 34,
+      "target": "S11",
+      "type": "射击",
+      "t_prep": 807.3,
+      "t_exec": 808.8,
+      "distance_m": 22.884,
+      "speed_mps": 0.353,
+      "accel_mps2": 0.285,
       "view_angle_deg": null
     }
   ]
