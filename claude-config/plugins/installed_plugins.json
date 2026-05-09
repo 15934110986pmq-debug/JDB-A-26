@@ -1,0 +1,54 @@
+{
+  "version": 2,
+  "plugins": {
+    "andrej-karpathy-skills@karpathy-skills": [
+      {
+        "scope": "local",
+        "projectPath": "/home/p/JDB",
+        "installPath": "/home/p/.claude/plugins/cache/karpathy-skills/andrej-karpathy-skills/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2026-05-06T14:38:29.770Z",
+        "lastUpdated": "2026-05-06T14:38:29.770Z",
+        "gitCommitSha": "2c606141936f1eeef17fa3043a72095b4765b9c2"
+      },
+      {
+        "scope": "project",
+        "projectPath": "/home/p/DC",
+        "installPath": "/home/p/.claude/plugins/cache/karpathy-skills/andrej-karpathy-skills/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2026-05-07T14:45:13.192Z",
+        "lastUpdated": "2026-05-07T14:45:13.192Z",
+        "gitCommitSha": "2c606141936f1eeef17fa3043a72095b4765b9c2"
+      },
+      {
+        "scope": "project",
+        "projectPath": "/home/p/robocup/project",
+        "installPath": "/home/p/.claude/plugins/cache/karpathy-skills/andrej-karpathy-skills/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2026-05-09T13:30:00.000Z",
+        "lastUpdated": "2026-05-09T13:30:00.000Z",
+        "gitCommitSha": "2c606141936f1eeef17fa3043a72095b4765b9c2"
+      }
+    ],
+    "everything-claude-code@everything-claude-code": [
+      {
+        "scope": "project",
+        "installPath": "/home/p/.claude/plugins/cache/everything-claude-code/everything-claude-code/2.0.0-rc.1",
+        "version": "2.0.0-rc.1",
+        "installedAt": "2026-05-07T14:46:20.716Z",
+        "lastUpdated": "2026-05-07T14:46:20.716Z",
+        "gitCommitSha": "841beea45cb25ba51f29fa45b7e272938d19b80a",
+        "projectPath": "/home/p/DC"
+      },
+      {
+        "scope": "project",
+        "installPath": "/home/p/.claude/plugins/cache/everything-claude-code/everything-claude-code/2.0.0-rc.1",
+        "version": "2.0.0-rc.1",
+        "installedAt": "2026-05-09T13:30:00.000Z",
+        "lastUpdated": "2026-05-09T13:30:00.000Z",
+        "gitCommitSha": "841beea45cb25ba51f29fa45b7e272938d19b80a",
+        "projectPath": "/home/p/robocup/project"
+      }
+    ]
+  }
+}

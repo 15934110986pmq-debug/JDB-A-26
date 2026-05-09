@@ -1,0 +1,6 @@
+- [Output formatting — Unicode in terminal, LaTeX in documents](feedback_output_formatting.md) — terminal replies use Unicode math symbols; LaTeX/$...$ only inside paper/markdown/HTML files
+- [Model dispatch policy](feedback_model_dispatch.md) — Opus orchestrates from main session; tactical work (code, plots, batch ops) goes to Sonnet/Haiku subagents via Agent tool with explicit model override
+- [Paper review scope](feedback_review_scope.md) — when reviewing 金地杯 chapter drafts, skip numbering/formatting (merge-time), focus on math errors which are user's blind spot
+- [User role and learning goals](user_role.md) — undergraduate; 金地杯 + considering 大创 DL project (AIGC检测+查重); has Claude Code + GCloud free credit; learning-by-doing focus
+- [金地杯 A 题项目状态](project_jindi_a_status.md) — 2026-05-09 Q1-Q4 全部完成；仓库结构、四问主交付数值、关键技术决策、GitHub repo
+- [金地杯论文工作流偏好](feedback_jindi_workflow.md) — 红队多 AI 验证 / 诚实声明 / J* 噪声底诊断 / 双解对照 / 段内密集 + ILP / K 拐点等已沉淀范式
