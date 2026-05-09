@@ -568,6 +568,14 @@ def main():
     # 避免 K=∞ 的同目标无限重复 (物理不合理).
     SHOOT_MAX_PER_TARGET = 3
 
+    # 严格按官方题面 (2026_A题.docx 附录) 主交付:
+    #   - ε=0 (题面未要求过渡时间)
+    #   - K=3 (命中率拐点; 题面单次 85%, 3 次累积 99.66%)
+    #   - 等权 max ∑ x_i (题面 "尽可能多地完成射击和拍照任务", 等权解读)
+    #   - 段内 step = T_aim+0 / T_focus+0 (密集放候选)
+    #   - 不加 chance constraint (那是工程鲁棒化, 非题面要求)
+    # 鲁棒解保留为敏感性对照
+
     # ===== 标称解 (P0 修正前的基线) =====
     # 段内密集取候选, 同目标射击 ≤ K, 拍照按 60° 视角差去重
     print(f"\n========== 标称解 (ε=0, 段内密集, 射击同目标 ≤ {SHOOT_MAX_PER_TARGET}) ==========")
@@ -623,14 +631,14 @@ def main():
     for t in sorted(only_rob, key=lambda x: x[2]):
         print(f"    {t[0]} {t[1]} @ t={t[2]}")
 
-    # 主交付: 鲁棒解 (P0 修正)
-    print(f"\n========== 主交付: 鲁棒解 ==========")
-    selected = selected_rob
-    all_cand = all_cand_rob
-    shoot_cand = shoot_cand_rob
-    photo_cand = photo_cand_rob
-    n_unique_shoot = n_unique_shoot_rob
-    n_unique_photo = n_unique_photo_rob
+    # 主交付: 严格按官方题面的标称解 (K=3, ε=0, 等权)
+    print(f"\n========== 主交付: 标称解 (严格按官方题面) ==========")
+    selected = selected_nom
+    all_cand = all_cand_nom
+    shoot_cand = shoot_cand_nom
+    photo_cand = photo_cand_nom
+    n_unique_shoot = len({c["target"] for c in shoot_cand_nom})
+    n_unique_photo = len({c["target"] for c in photo_cand_nom})
 
     n_shoot_sel = sum(1 for c in selected if c["type"] == '射击')
     n_photo_sel = sum(1 for c in selected if c["type"] == '拍照')
